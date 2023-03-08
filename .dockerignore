@@ -145,3 +145,7 @@ $RECYCLE.BIN/
 Dockerfile
 docker-compose.yaml
 README.md
+
+# air
+/tmp
+/.air.toml
