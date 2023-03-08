@@ -82,8 +82,3 @@ func (s Service) GetShortenLink(ctx context.Context, path string) (*URL, error) 
 	}
 	return url, nil
 }
-
-//feat: add domain service for urlshoten
-//
-//URL entity and validation methods addeed
-//domain service for setting url
