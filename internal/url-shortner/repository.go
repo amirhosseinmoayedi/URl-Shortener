@@ -8,8 +8,8 @@ import (
 var URLNotFound = errors.New("URL not found")
 
 type URLRepository interface {
-	add(ctx context.Context, url URL) error
-	find(ctx context.Context, id string) (*URL, error)
+	Add(ctx context.Context, url URL) error
+	Find(ctx context.Context, path string) (URL, error)
 }
 
 type URLConvertor interface {

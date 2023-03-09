@@ -22,7 +22,7 @@ func NewInMemoryCacheURLRepository() *InMemoryCacheURLRepository {
 	return &InMemoryCacheURLRepository{cache: cache}
 }
 
-func (ir *InMemoryCacheURLRepository) add(ctx context.Context, url url_shortner.URL) error {
+func (ir *InMemoryCacheURLRepository) Add(ctx context.Context, url url_shortner.URL) error {
 	imURL := ToInMemoryCacheURL(url)
 	if _, ok := ir.cache[url.Path]; ok {
 		return errors.New("URL already exists")
@@ -31,7 +31,7 @@ func (ir *InMemoryCacheURLRepository) add(ctx context.Context, url url_shortner.
 	return nil
 }
 
-func (ir *InMemoryCacheURLRepository) find(ctx context.Context, path string) (url_shortner.URL, error) {
+func (ir *InMemoryCacheURLRepository) Find(ctx context.Context, path string) (url_shortner.URL, error) {
 	v, ok := ir.cache[path]
 	if !ok {
 		return url_shortner.URL{}, url_shortner.URLNotFound
