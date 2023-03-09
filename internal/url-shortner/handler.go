@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/gommon/log"
+	"log"
 	"net/http"
 	"time"
 )
@@ -41,40 +41,40 @@ func (h Handler) RedirectToOrigin(ctx echo.Context) error {
 	uid := ctx.Param("uuid")
 	if uid == "" {
 		err := errors.New("uuid can't be empty")
-		log.Info(err)
-		return ctx.JSON(http.StatusBadRequest, err)
+		log.Print(err)
+		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
 	bctx := context.Background()
 	url, err := h.svc.GetShortenLink(bctx, uid)
 	if err != nil {
 		if !errors.Is(err, URLNotFound) {
-			log.Info()
-			return ctx.JSON(http.StatusNotFound, err)
+			log.Print()
+			return echo.NewHTTPError(http.StatusNotFound, err)
 		} else {
 			err = fmt.Errorf("can't retrevive the url for uuid %v: %w", uid, err)
-			log.Error(err)
-			return ctx.JSON(http.StatusInternalServerError, err)
+			log.Print(err)
+			return echo.NewHTTPError(http.StatusInternalServerError, err)
 		}
 	}
 
 	responsePayload := newURLShortenResponse(*url)
-	return ctx.Redirect(http.StatusFound, responsePayload.Shorten)
+	return ctx.Redirect(http.StatusMovedPermanently, responsePayload.Shorten)
 }
 
 func (h Handler) ShortenUrl(ctx echo.Context) error {
 	givenURL := ctx.QueryParam("givenURL")
 	if givenURL == "" {
 		err := errors.New("givenURL params cant be empty")
-		log.Info(err)
-		return ctx.JSON(http.StatusBadRequest, err)
+		log.Print(err)
+		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
 	bctx := context.Background()
 	url := NewUrl(givenURL)
 	if err := h.svc.ShortenLink(bctx, url); err != nil {
-		log.Info(err)
-		return ctx.JSON(http.StatusBadRequest, err)
+		log.Print(err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
 	responsePayload := newURLShortenResponse(*url)
