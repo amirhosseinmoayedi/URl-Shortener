@@ -3,9 +3,10 @@ package url_shortner
 import (
 	"errors"
 	"fmt"
-	"github.com/google/uuid"
+	"hash/fnv"
 	"log"
 	"regexp"
+	"strconv"
 	"time"
 )
 
@@ -49,10 +50,11 @@ func (u *URL) setCreateAt() error {
 }
 
 func (u *URL) setPath() error {
-	id, err := uuid.NewUUID()
+	h := fnv.New32()
+	_, err := h.Write([]byte(u.Original))
 	if err != nil {
 		return err
 	}
-	u.Path = id.String()
+	u.Path = strconv.Itoa(int(h.Sum32()))
 	return nil
 }
