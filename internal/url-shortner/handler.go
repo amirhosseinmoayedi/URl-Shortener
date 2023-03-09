@@ -5,9 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"github.com/labstack/echo/v4"
-	"log"
 	"net/http"
 	"time"
+	"url-shortener/internal/log"
 )
 
 type Handler struct {
@@ -38,27 +38,28 @@ func newURLShortenResponse(url URL) *urlShortenResponse {
 }
 
 func (h Handler) RedirectToOrigin(ctx echo.Context) error {
-	uid := ctx.Param("uuid")
-	if uid == "" {
+	path := ctx.Param("path")
+	if path == "" {
 		err := errors.New("uuid can't be empty")
-		log.Print(err)
-		return echo.NewHTTPError(http.StatusBadRequest, err)
+		log.Logger.WithField("ctx", ctx).Debug(err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
 	bctx := context.Background()
-	url, err := h.svc.GetShortenLink(bctx, uid)
+	url, err := h.svc.GetShortenLink(bctx, path)
 	if err != nil {
 		if !errors.Is(err, URLNotFound) {
-			log.Print()
-			return echo.NewHTTPError(http.StatusNotFound, err)
+			log.Logger.WithFields(map[string]interface{}{"ctx": ctx, "url": url}).Debug(err)
+			return echo.NewHTTPError(http.StatusNotFound, err.Error())
 		} else {
-			err = fmt.Errorf("can't retrevive the url for uuid %v: %w", uid, err)
-			log.Print(err)
-			return echo.NewHTTPError(http.StatusInternalServerError, err)
+			err = fmt.Errorf("can't retrevive the url for uuid %v: %w", path, err)
+			log.Logger.WithFields(map[string]interface{}{"ctx": ctx, "url": url}).Error(err)
+			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
 	}
 
 	responsePayload := newURLShortenResponse(*url)
+	log.Logger.WithFields(map[string]interface{}{"ctx": ctx, "url": url, "response": responsePayload}).Info("short-link created")
 	return ctx.Redirect(http.StatusMovedPermanently, responsePayload.Shorten)
 }
 
@@ -66,18 +67,18 @@ func (h Handler) ShortenUrl(ctx echo.Context) error {
 	givenURL := ctx.QueryParam("givenURL")
 	if givenURL == "" {
 		err := errors.New("givenURL params cant be empty")
-		log.Print(err)
-		return echo.NewHTTPError(http.StatusBadRequest, err)
+		log.Logger.WithFields(map[string]interface{}{"ctx": ctx, "givenURL": givenURL}).Debug(err)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
 	bctx := context.Background()
 	url := NewUrl(givenURL)
 	if err := h.svc.ShortenLink(bctx, url); err != nil {
-		log.Print(err)
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		log.Logger.WithFields(map[string]interface{}{"ctx": ctx, "givenURL": givenURL, "url": url}).Error(err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	responsePayload := newURLShortenResponse(*url)
-
+	log.Logger.WithFields(map[string]interface{}{"ctx": ctx, "url": url, "response": responsePayload}).Info("redirected")
 	return ctx.JSONPretty(http.StatusCreated, responsePayload, "\t")
 }

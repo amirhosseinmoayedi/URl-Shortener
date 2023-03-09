@@ -4,10 +4,10 @@ import (
 	"errors"
 	"fmt"
 	"hash/fnv"
-	"log"
 	"regexp"
 	"strconv"
 	"time"
+	log "url-shortener/internal/log"
 )
 
 var domainRegex *regexp.Regexp
@@ -17,7 +17,7 @@ func init() {
 	domainRegex, err = regexp.Compile("^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]\\.[a-zA-Z]{2,}$")
 	if err != nil {
 		err = fmt.Errorf("can't start the url shortner module because :%w", err)
-		log.Fatal(err)
+		log.Logger.Fatal(err)
 	}
 
 }
@@ -53,6 +53,7 @@ func (u *URL) setPath() error {
 	h := fnv.New32()
 	_, err := h.Write([]byte(u.Original))
 	if err != nil {
+		log.Logger.WithFields(map[string]interface{}{"hash": h, "url": u.Original}).Warn(err)
 		return err
 	}
 	u.Path = strconv.Itoa(int(h.Sum32()))

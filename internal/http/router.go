@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"log"
 	"url-shortener/internal/http/middlewares"
+	"url-shortener/internal/log"
 	url_shortner "url-shortener/internal/url-shortner"
 )
 
@@ -21,15 +21,17 @@ var routerPath = ""
 
 func NewRouter(handler url_shortner.Handler) (*Router, error) {
 	if routerPort == "" {
-		log.Print("setting port to default: 8080")
+		log.Logger.WithField("handler", handler).Info("setting port to default: 8080")
 		routerPort = "8080"
 	}
 	if routerPath == "" {
-		log.Print("setting path to default localhost")
+		log.Logger.WithField("handler", handler).Info("setting port to default: 8080")
 		routerPath = "localhost"
 	}
 	if handler == (url_shortner.Handler{}) {
-		return nil, errors.New("handler cant be empty")
+		err := errors.New("handler cant be empty")
+		log.Logger.WithField("handler", handler).Error(err)
+		return nil, err
 	}
 	return &Router{
 		Port:    routerPort,
@@ -44,7 +46,7 @@ func (rc *Router) Serve() {
 	address := fmt.Sprintf("%v:%v", rc.Path, rc.Port)
 
 	if err := e.Start(address); err != nil {
-		log.Fatal("cant start the server", err)
+		log.Logger.WithFields(map[string]interface{}{"address": address, "router": rc}).Fatal("cant start the server", err)
 	}
 }
 
@@ -56,6 +58,17 @@ func (rc *Router) startRouter() *echo.Echo {
 		AllowCredentials: true,
 		ExposeHeaders:    []string{"Link"},
 		MaxAge:           300,
+	}))
+	e.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
+		LogURI:    true,
+		LogStatus: true,
+		LogValuesFunc: func(c echo.Context, values middleware.RequestLoggerValues) error {
+			log.Logger.WithFields(map[string]interface{}{
+				"URI":    values.URI,
+				"status": values.Status,
+			}).Info("request")
+			return nil
+		},
 	}))
 	e.Use(middlewares.HeartBeatMiddleware("/ping"))
 
