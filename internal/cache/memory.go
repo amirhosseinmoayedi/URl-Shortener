@@ -34,7 +34,7 @@ func (ir *InMemoryCacheURLRepository) add(ctx context.Context, url url_shortner.
 func (ir *InMemoryCacheURLRepository) find(ctx context.Context, path string) (url_shortner.URL, error) {
 	v, ok := ir.cache[path]
 	if !ok {
-		return url_shortner.URL{}, errors.New("URL not found")
+		return url_shortner.URL{}, url_shortner.URLNotFound
 	}
 	url := v.ToURL()
 	return url, nil

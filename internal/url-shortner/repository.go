@@ -1,6 +1,11 @@
 package url_shortner
 
-import "context"
+import (
+	"context"
+	"errors"
+)
+
+var URLNotFound = errors.New("URL not found")
 
 type URLRepository interface {
 	add(ctx context.Context, url URL) error
