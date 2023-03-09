@@ -41,7 +41,7 @@ func (u *URL) validateOriginalPath() error {
 }
 
 func (u *URL) setCreateAt() error {
-	if u.CreatedAt.IsZero() {
+	if !u.CreatedAt.IsZero() {
 		return errors.New("URL already have created at")
 	}
 	u.CreatedAt = time.Now()
