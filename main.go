@@ -12,6 +12,6 @@ func main() {
 	service := service2.NewService(repo)
 	handler := urlshortner.NewHandler(service)
 
-	router := http.NewRouter(handler)
+	router := http.NewServer(handler)
 	router.Serve()
 }

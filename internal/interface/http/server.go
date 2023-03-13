@@ -2,51 +2,40 @@ package http
 
 import (
 	"fmt"
-	url_shortner "github.com/amirhosseinmoayedi/URl-Shortener/internal/interface/http/v1"
+	urlshortner "github.com/amirhosseinmoayedi/URl-Shortener/internal/interface/http/v1"
 	"github.com/amirhosseinmoayedi/URl-Shortener/internal/log"
 	"github.com/go-playground/validator"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
-type Router struct {
+type Server struct {
 	Port    string
 	Path    string
-	handler *url_shortner.Handler
+	handler *urlshortner.Handler
 }
 
 var routerPort = ""
 var routerPath = ""
 
-type requestValidator struct {
-	validator *validator.Validate
-}
-
-func (cv *requestValidator) Validate(i interface{}) error {
-	if err := cv.validator.Struct(i); err != nil {
-		return err
-	}
-	return nil
-}
-
-func NewRouter(handler *url_shortner.Handler) *Router {
+func NewServer(handler *urlshortner.Handler) *Server {
 	if routerPort == "" {
-		log.Logger.WithField("handler", handler).Info("setting port to default: 8080")
+		log.Logger.Info("setting port to default: 8080")
 		routerPort = "8080"
 	}
 	if routerPath == "" {
-		log.Logger.WithField("handler", handler).Info("setting port to default: 8080")
+		log.Logger.Info("setting path to default: localhost")
 		routerPath = "localhost"
 	}
-	return &Router{
+	return &Server{
 		Port:    routerPort,
 		Path:    routerPath,
 		handler: handler,
 	}
 }
 
-func (rc *Router) Serve() {
-	e := rc.startRouter()
+func (rc *Server) Serve() {
+	e := rc.initiate()
 
 	address := fmt.Sprintf("%v:%v", rc.Path, rc.Port)
 
@@ -55,7 +44,7 @@ func (rc *Router) Serve() {
 	}
 }
 
-func (rc *Router) startRouter() *echo.Echo {
+func (rc *Server) initiate() *echo.Echo {
 	e := echo.New()
 
 	e.Validator = &requestValidator{validator: validator.New()}
@@ -86,7 +75,7 @@ func (rc *Router) startRouter() *echo.Echo {
 		},
 	}))
 
-	e.GET("/health-check/", url_shortner.HeartBeat)
+	e.GET("/health-check/", urlshortner.HeartBeat)
 
 	e.POST("/shorten-url/", rc.handler.ShortenUrl)
 	e.GET("/shorted-url/:uuid", rc.handler.RedirectToOrigin)
