@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"url-shortener/internal/http/middlewares"
+	"url-shortener/internal/http/handlers"
 	"url-shortener/internal/log"
 	url_shortner "url-shortener/internal/url-shortner"
 )
@@ -70,7 +70,8 @@ func (rc *Router) startRouter() *echo.Echo {
 			return nil
 		},
 	}))
-	e.Use(middlewares.HeartBeatMiddleware("/ping"))
+
+	e.GET("/health-check/", handlers.HeartBeat)
 
 	e.POST("/shorten-url/", rc.handler.ShortenUrl)
 	e.GET("/shorted-url/:uuid", rc.handler.RedirectToOrigin)
