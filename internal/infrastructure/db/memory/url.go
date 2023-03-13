@@ -2,41 +2,40 @@ package memory
 
 import (
 	"context"
-	"errors"
 	"github.com/amirhosseinmoayedi/URl-Shortener/internal/domain/entity"
 	"github.com/amirhosseinmoayedi/URl-Shortener/internal/domain/repository"
 	"time"
 )
 
-type InMemoryURLRepository struct {
-	cache map[string]InMemoryURL
+type URLRepositoryInMemory struct {
+	cache map[string]URLInMemory
 }
 
-type InMemoryURL struct {
+type URLInMemory struct {
 	Path      string
 	Original  string
 	CreatedAt time.Time
 }
 
-func NewInMemoryCacheURLRepository() *InMemoryURLRepository {
-	cache := make(map[string]InMemoryURL)
-	return &InMemoryURLRepository{cache: cache}
+func NewURLRepositoryInMemory() *URLRepositoryInMemory {
+	cache := make(map[string]URLInMemory)
+	return &URLRepositoryInMemory{cache: cache}
 }
 
-func (ir *InMemoryURLRepository) Add(ctx context.Context, url entity.URL) error {
-	imURL := InMemoryURL{
+func (ir *URLRepositoryInMemory) Add(ctx context.Context, url entity.URL) error {
+	imURL := URLInMemory{
 		Path:      url.Path,
 		Original:  url.Original,
 		CreatedAt: url.CreatedAt,
 	}
 	if _, ok := ir.cache[url.Path]; ok {
-		return errors.New("URL already exists")
+		return repository.URLAlreadyExists
 	}
 	ir.cache[url.Path] = imURL
 	return nil
 }
 
-func (ir *InMemoryURLRepository) Find(ctx context.Context, path string) (entity.URL, error) {
+func (ir *URLRepositoryInMemory) Find(ctx context.Context, path string) (entity.URL, error) {
 	imURL, ok := ir.cache[path]
 	if !ok {
 		return entity.URL{}, repository.URLNotFound
