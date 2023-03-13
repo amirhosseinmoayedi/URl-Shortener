@@ -24,14 +24,6 @@ type urlShortenResponse struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-func newURLShortenResponse(url URL) *urlShortenResponse {
-	return &urlShortenResponse{
-		URL:       url.Original,
-		Shorten:   url.Path,
-		CreatedAt: url.CreatedAt,
-	}
-}
-
 type urlShortenRequest struct {
 	webSiteDomain string `query:"domain" validate:"required"`
 }
@@ -63,7 +55,11 @@ func (h Handler) RedirectToOrigin(ctx echo.Context) error {
 		}
 	}
 
-	responsePayload := newURLShortenResponse(*url)
+	responsePayload := urlShortenResponse{
+		URL:       url.Original,
+		Shorten:   url.Path,
+		CreatedAt: url.CreatedAt,
+	}
 	log.Logger.WithFields(map[string]interface{}{"ctx": ctx, "url": url, "response": responsePayload}).Info("short-link created")
 	return ctx.Redirect(http.StatusMovedPermanently, responsePayload.Shorten)
 }
@@ -88,7 +84,11 @@ func (h Handler) ShortenUrl(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	responsePayload := newURLShortenResponse(*url)
+	responsePayload := urlShortenResponse{
+		URL:       url.Original,
+		Shorten:   url.Path,
+		CreatedAt: url.CreatedAt,
+	}
 	log.Logger.WithFields(map[string]interface{}{"request": *ctx.Request(), "err": err, "url": url, "response": responsePayload}).Info("response to shorted url request")
 	return ctx.JSONPretty(http.StatusCreated, responsePayload, "\t")
 }
