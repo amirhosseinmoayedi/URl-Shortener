@@ -41,7 +41,7 @@ func (s Service) GetShortened(ctx context.Context, path string) (*entity.URL, er
 	log.Logger.WithFields(map[string]interface{}{"ctx": ctx, "path": path}).Info("request for get the original url")
 	url, err := s.URLRepo.Find(ctx, path)
 	if err != nil {
-		log.Logger.WithFields(map[string]interface{}{"ctx": ctx, "path": path}).Info(err)
+		log.Logger.WithFields(map[string]interface{}{"ctx": ctx, "path": path}).Error(err)
 		return nil, err
 	}
 	log.Logger.WithFields(map[string]interface{}{"ctx": ctx, "path": path, "url": url}).Info("url short version found")
