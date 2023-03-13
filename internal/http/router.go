@@ -13,7 +13,7 @@ import (
 type Router struct {
 	Port    string
 	Path    string
-	handler url_shortner.Handler
+	handler *url_shortner.Handler
 }
 
 var routerPort = ""
@@ -30,7 +30,7 @@ func (cv *requestValidator) Validate(i interface{}) error {
 	return nil
 }
 
-func NewRouter(handler url_shortner.Handler) *Router {
+func NewRouter(handler *url_shortner.Handler) *Router {
 	if routerPort == "" {
 		log.Logger.WithField("handler", handler).Info("setting port to default: 8080")
 		routerPort = "8080"

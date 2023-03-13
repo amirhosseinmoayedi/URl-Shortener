@@ -9,8 +9,8 @@ type Service struct {
 	URLRepo URLRepository
 }
 
-func NewService(repo URLRepository) *Service {
-	return &Service{URLRepo: repo}
+func NewService(repo URLRepository) Service {
+	return Service{URLRepo: repo}
 }
 
 func (s Service) ShortenLink(ctx context.Context, url *URL) error {

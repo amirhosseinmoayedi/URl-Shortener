@@ -9,8 +9,8 @@ import (
 func main() {
 	repo := cache.NewInMemoryCacheURLRepository()
 	service := urlshortner.NewService(repo)
-	handler := urlshortner.NewHandler(*service)
+	handler := urlshortner.NewHandler(service)
 
-	router := http.NewRouter(*handler)
+	router := http.NewRouter(handler)
 	router.Serve()
 }
