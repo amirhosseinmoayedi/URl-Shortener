@@ -67,12 +67,20 @@ func (rc *Router) startRouter() *echo.Echo {
 		MaxAge:           300,
 	}))
 	e.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
-		LogURI:    true,
-		LogStatus: true,
+		LogRemoteIP:  true,
+		LogHost:      true,
+		LogMethod:    true,
+		LogURI:       true,
+		LogUserAgent: true,
+		LogStatus:    true,
 		LogValuesFunc: func(c echo.Context, values middleware.RequestLoggerValues) error {
 			log.Logger.WithFields(map[string]interface{}{
-				"URI":    values.URI,
-				"status": values.Status,
+				"URI":        values.URI,
+				"status":     values.Status,
+				"remote_ip":  values.RemoteIP,
+				"host":       values.Host,
+				"method":     values.Method,
+				"user_agent": values.UserAgent,
 			}).Info("request")
 			return nil
 		},

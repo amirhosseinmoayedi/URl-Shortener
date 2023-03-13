@@ -21,13 +21,12 @@ func initLogger() {
 		Out:   os.Stderr,
 		Level: level,
 		Hooks: make(logrus.LevelHooks),
-		// ReportCaller: true,
 		Formatter: &logrus.TextFormatter{
 			ForceColors:            true,
 			DisableColors:          false,
-			DisableLevelTruncation: true,
+			DisableLevelTruncation: false,
+			FullTimestamp:          true,
 			TimestampFormat:        "2006-01-02 15:04:05",
-			// LogFormat:       "[%time%] %lvl%, %msg%",
 		},
 	}
 }
