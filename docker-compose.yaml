@@ -1,0 +1,15 @@
+version: "3.9"
+
+services:
+  web:
+    build:
+      context: .
+    restart: always
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost"\ ]
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
