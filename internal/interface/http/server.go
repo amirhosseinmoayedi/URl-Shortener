@@ -2,9 +2,8 @@ package http
 
 import (
 	"fmt"
-	"github.com/amirhosseinmoayedi/URl-Shortener/internal/http/handlers"
+	url_shortner "github.com/amirhosseinmoayedi/URl-Shortener/internal/interface/http/v1"
 	"github.com/amirhosseinmoayedi/URl-Shortener/internal/log"
-	url_shortner "github.com/amirhosseinmoayedi/URl-Shortener/internal/url-shortner"
 	"github.com/go-playground/validator"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -79,7 +78,7 @@ func (rc *Router) startRouter() *echo.Echo {
 		},
 	}))
 
-	e.GET("/health-check/", handlers.HeartBeat)
+	e.GET("/health-check/", url_shortner.HeartBeat)
 
 	e.POST("/shorten-url/", rc.handler.ShortenUrl)
 	e.GET("/shorted-url/:uuid", rc.handler.RedirectToOrigin)

@@ -1,29 +1,31 @@
-package url_shortner
+package service
 
 import (
 	"context"
+	"github.com/amirhosseinmoayedi/URl-Shortener/internal/domain/entity"
+	"github.com/amirhosseinmoayedi/URl-Shortener/internal/domain/repository"
 	"github.com/amirhosseinmoayedi/URl-Shortener/internal/log"
 )
 
 type Service struct {
-	URLRepo URLRepository
+	URLRepo repository.URLRepository
 }
 
-func NewService(repo URLRepository) Service {
+func NewService(repo repository.URLRepository) Service {
 	return Service{URLRepo: repo}
 }
 
-func (s Service) ShortenLink(ctx context.Context, url *URL) error {
+func (s Service) ShortenLink(ctx context.Context, url *entity.URL) error {
 	log.Logger.WithFields(map[string]interface{}{"ctx": ctx, "url": url}).Info("request for shorten the url")
-	if err := url.validateOriginalPath(); err != nil {
+	if err := url.ValidateOriginalPath(); err != nil {
 		log.Logger.WithFields(map[string]interface{}{"ctx": ctx, "url": url}).Error(err)
 		return err
 	}
-	if err := url.setCreateAt(); err != nil {
+	if err := url.SetCreateAt(); err != nil {
 		log.Logger.WithFields(map[string]interface{}{"ctx": ctx, "url": url}).Error(err)
 		return err
 	}
-	if err := url.setPath(); err != nil {
+	if err := url.SetPath(); err != nil {
 		log.Logger.WithFields(map[string]interface{}{"ctx": ctx, "url": url}).Error(err)
 		return err
 	}
@@ -35,7 +37,7 @@ func (s Service) ShortenLink(ctx context.Context, url *URL) error {
 	return nil
 }
 
-func (s Service) GetShortenLink(ctx context.Context, path string) (*URL, error) {
+func (s Service) GetShortenLink(ctx context.Context, path string) (*entity.URL, error) {
 	log.Logger.WithFields(map[string]interface{}{"ctx": ctx, "path": path}).Info("request for get the original url")
 	url, err := s.URLRepo.Find(ctx, path)
 	if err != nil {

@@ -1,9 +1,10 @@
-package cache
+package memory
 
 import (
 	"context"
 	"errors"
-	"github.com/amirhosseinmoayedi/URl-Shortener/internal/url-shortner"
+	"github.com/amirhosseinmoayedi/URl-Shortener/internal/domain/entity"
+	"github.com/amirhosseinmoayedi/URl-Shortener/internal/domain/repository"
 	"time"
 )
 
@@ -22,7 +23,7 @@ func NewInMemoryCacheURLRepository() *InMemoryCacheURLRepository {
 	return &InMemoryCacheURLRepository{cache: cache}
 }
 
-func (ir *InMemoryCacheURLRepository) Add(ctx context.Context, url url_shortner.URL) error {
+func (ir *InMemoryCacheURLRepository) Add(ctx context.Context, url entity.URL) error {
 	imURL := ToInMemoryCacheURL(url)
 	if _, ok := ir.cache[url.Path]; ok {
 		return errors.New("URL already exists")
@@ -31,25 +32,25 @@ func (ir *InMemoryCacheURLRepository) Add(ctx context.Context, url url_shortner.
 	return nil
 }
 
-func (ir *InMemoryCacheURLRepository) Find(ctx context.Context, path string) (url_shortner.URL, error) {
+func (ir *InMemoryCacheURLRepository) Find(ctx context.Context, path string) (entity.URL, error) {
 	v, ok := ir.cache[path]
 	if !ok {
-		return url_shortner.URL{}, url_shortner.URLNotFound
+		return entity.URL{}, repository.URLNotFound
 	}
 	url := v.ToURL()
 	return url, nil
 }
 
 // ToURL is a DTO
-func (i *InMemoryCacheURL) ToURL() url_shortner.URL {
-	return url_shortner.URL{
+func (i *InMemoryCacheURL) ToURL() entity.URL {
+	return entity.URL{
 		Path:      i.Path,
 		Original:  i.Original,
 		CreatedAt: i.CreatedAt,
 	}
 }
 
-func ToInMemoryCacheURL(url url_shortner.URL) InMemoryCacheURL {
+func ToInMemoryCacheURL(url entity.URL) InMemoryCacheURL {
 	return InMemoryCacheURL{
 		Path:      url.Path,
 		Original:  url.Original,

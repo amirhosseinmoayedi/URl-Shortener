@@ -1,4 +1,4 @@
-package url_shortner
+package entity
 
 import (
 	"errors"
@@ -34,14 +34,14 @@ func NewUrl(originalURL string) *URL {
 	return &URL{Original: originalURL}
 }
 
-func (u *URL) validateOriginalPath() error {
+func (u *URL) ValidateOriginalPath() error {
 	if !domainRegex.MatchString(u.Original) {
 		return errors.New("URL is not valid")
 	}
 	return nil
 }
 
-func (u *URL) setCreateAt() error {
+func (u *URL) SetCreateAt() error {
 	if !u.CreatedAt.IsZero() {
 		return errors.New("URL already have created at")
 	}
@@ -49,7 +49,7 @@ func (u *URL) setCreateAt() error {
 	return nil
 }
 
-func (u *URL) setPath() error {
+func (u *URL) SetPath() error {
 	h := fnv.New32()
 	_, err := h.Write([]byte(u.Original))
 	if err != nil {

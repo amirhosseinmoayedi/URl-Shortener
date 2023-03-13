@@ -1,7 +1,10 @@
-package url_shortner
+package v1
 
 import (
 	"errors"
+	"github.com/amirhosseinmoayedi/URl-Shortener/internal/domain/entity"
+	"github.com/amirhosseinmoayedi/URl-Shortener/internal/domain/repository"
+	"github.com/amirhosseinmoayedi/URl-Shortener/internal/domain/service"
 	"github.com/amirhosseinmoayedi/URl-Shortener/internal/log"
 	"github.com/labstack/echo/v4"
 	"net/http"
@@ -9,10 +12,10 @@ import (
 )
 
 type Handler struct {
-	svc Service
+	svc service.Service
 }
 
-func NewHandler(svc Service) *Handler {
+func NewHandler(svc service.Service) *Handler {
 	return &Handler{
 		svc: svc,
 	}
@@ -46,7 +49,7 @@ func (h Handler) RedirectToOrigin(ctx echo.Context) error {
 	bctx := ctx.Request().Context()
 	url, err := h.svc.GetShortenLink(bctx, request.path)
 	if err != nil {
-		if errors.Is(err, URLNotFound) {
+		if errors.Is(err, repository.URLNotFound) {
 			log.Logger.WithFields(map[string]interface{}{"request": *ctx.Request(), "err": err, "url": url}).Error(err)
 			return echo.NewHTTPError(http.StatusNotFound, err.Error())
 		} else {
@@ -78,7 +81,7 @@ func (h Handler) ShortenUrl(ctx echo.Context) error {
 	}
 
 	bctx := ctx.Request().Context()
-	url := NewUrl(request.webSiteDomain)
+	url := entity.NewUrl(request.webSiteDomain)
 	if err = h.svc.ShortenLink(bctx, url); err != nil {
 		log.Logger.WithFields(map[string]interface{}{"request": *ctx.Request(), "err": err, "url": url}).Error("can't create a shorted url")
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
