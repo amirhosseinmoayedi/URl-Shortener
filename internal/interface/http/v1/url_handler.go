@@ -47,7 +47,7 @@ func (h Handler) RedirectToOrigin(ctx echo.Context) error {
 	}
 
 	bctx := ctx.Request().Context()
-	url, err := h.svc.GetShortenLink(bctx, request.path)
+	url, err := h.svc.GetShortened(bctx, request.path)
 	if err != nil {
 		if errors.Is(err, repository.URLNotFound) {
 			log.Logger.WithFields(map[string]interface{}{"request": *ctx.Request(), "err": err, "url": url}).Error(err)
@@ -82,7 +82,7 @@ func (h Handler) ShortenUrl(ctx echo.Context) error {
 
 	bctx := ctx.Request().Context()
 	url := entity.NewUrl(request.webSiteDomain)
-	if err = h.svc.ShortenLink(bctx, url); err != nil {
+	if err = h.svc.Shortening(bctx, url); err != nil {
 		log.Logger.WithFields(map[string]interface{}{"request": *ctx.Request(), "err": err, "url": url}).Error("can't create a shorted url")
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}

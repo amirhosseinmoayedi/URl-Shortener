@@ -12,7 +12,3 @@ type URLRepository interface {
 	Add(ctx context.Context, url entity.URL) error
 	Find(ctx context.Context, path string) (entity.URL, error)
 }
-
-type URLConvertor interface {
-	ToURL() entity.URL
-}

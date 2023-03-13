@@ -8,23 +8,27 @@ import (
 	"time"
 )
 
-type InMemoryCacheURLRepository struct {
-	cache map[string]InMemoryCacheURL
+type InMemoryURLRepository struct {
+	cache map[string]InMemoryURL
 }
 
-type InMemoryCacheURL struct {
+type InMemoryURL struct {
 	Path      string
 	Original  string
 	CreatedAt time.Time
 }
 
-func NewInMemoryCacheURLRepository() *InMemoryCacheURLRepository {
-	cache := make(map[string]InMemoryCacheURL)
-	return &InMemoryCacheURLRepository{cache: cache}
+func NewInMemoryCacheURLRepository() *InMemoryURLRepository {
+	cache := make(map[string]InMemoryURL)
+	return &InMemoryURLRepository{cache: cache}
 }
 
-func (ir *InMemoryCacheURLRepository) Add(ctx context.Context, url entity.URL) error {
-	imURL := ToInMemoryCacheURL(url)
+func (ir *InMemoryURLRepository) Add(ctx context.Context, url entity.URL) error {
+	imURL := InMemoryURL{
+		Path:      url.Path,
+		Original:  url.Original,
+		CreatedAt: url.CreatedAt,
+	}
 	if _, ok := ir.cache[url.Path]; ok {
 		return errors.New("URL already exists")
 	}
@@ -32,28 +36,15 @@ func (ir *InMemoryCacheURLRepository) Add(ctx context.Context, url entity.URL) e
 	return nil
 }
 
-func (ir *InMemoryCacheURLRepository) Find(ctx context.Context, path string) (entity.URL, error) {
-	v, ok := ir.cache[path]
+func (ir *InMemoryURLRepository) Find(ctx context.Context, path string) (entity.URL, error) {
+	imURL, ok := ir.cache[path]
 	if !ok {
 		return entity.URL{}, repository.URLNotFound
 	}
-	url := v.ToURL()
+	url := entity.URL{
+		Path:      imURL.Path,
+		Original:  imURL.Original,
+		CreatedAt: imURL.CreatedAt,
+	}
 	return url, nil
-}
-
-// ToURL is a DTO
-func (i *InMemoryCacheURL) ToURL() entity.URL {
-	return entity.URL{
-		Path:      i.Path,
-		Original:  i.Original,
-		CreatedAt: i.CreatedAt,
-	}
-}
-
-func ToInMemoryCacheURL(url entity.URL) InMemoryCacheURL {
-	return InMemoryCacheURL{
-		Path:      url.Path,
-		Original:  url.Original,
-		CreatedAt: url.CreatedAt,
-	}
 }

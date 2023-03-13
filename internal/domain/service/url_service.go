@@ -15,7 +15,7 @@ func NewService(repo repository.URLRepository) Service {
 	return Service{URLRepo: repo}
 }
 
-func (s Service) ShortenLink(ctx context.Context, url *entity.URL) error {
+func (s Service) Shortening(ctx context.Context, url *entity.URL) error {
 	log.Logger.WithFields(map[string]interface{}{"ctx": ctx, "url": url}).Info("request for shorten the url")
 	if err := url.ValidateOriginalPath(); err != nil {
 		log.Logger.WithFields(map[string]interface{}{"ctx": ctx, "url": url}).Error(err)
@@ -37,7 +37,7 @@ func (s Service) ShortenLink(ctx context.Context, url *entity.URL) error {
 	return nil
 }
 
-func (s Service) GetShortenLink(ctx context.Context, path string) (*entity.URL, error) {
+func (s Service) GetShortened(ctx context.Context, path string) (*entity.URL, error) {
 	log.Logger.WithFields(map[string]interface{}{"ctx": ctx, "path": path}).Info("request for get the original url")
 	url, err := s.URLRepo.Find(ctx, path)
 	if err != nil {
