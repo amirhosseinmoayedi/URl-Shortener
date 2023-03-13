@@ -36,9 +36,8 @@ func (p *URLRepositoryPostgres) Add(ctx context.Context, url entity.URL) error {
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrDuplicatedKey) {
 			return repository.URLAlreadyExists
-		} else {
-			return result.Error
 		}
+		return result.Error
 	}
 	return nil
 }
@@ -50,9 +49,8 @@ func (p *URLRepositoryPostgres) Find(ctx context.Context, path string) (entity.U
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return entity.URL{}, repository.URLNotFound
-		} else {
-			return entity.URL{}, result.Error
 		}
+		return entity.URL{}, result.Error
 	}
 
 	return entity.URL{Path: url.Path, Original: url.Original}, nil
