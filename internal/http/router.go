@@ -1,7 +1,6 @@
 package http
 
 import (
-	"errors"
 	"fmt"
 	"github.com/amirhosseinmoayedi/URl-Shortener/internal/http/handlers"
 	"github.com/amirhosseinmoayedi/URl-Shortener/internal/log"
@@ -31,7 +30,7 @@ func (cv *requestValidator) Validate(i interface{}) error {
 	return nil
 }
 
-func NewRouter(handler url_shortner.Handler) (*Router, error) {
+func NewRouter(handler url_shortner.Handler) *Router {
 	if routerPort == "" {
 		log.Logger.WithField("handler", handler).Info("setting port to default: 8080")
 		routerPort = "8080"
@@ -40,16 +39,11 @@ func NewRouter(handler url_shortner.Handler) (*Router, error) {
 		log.Logger.WithField("handler", handler).Info("setting port to default: 8080")
 		routerPath = "localhost"
 	}
-	if handler == (url_shortner.Handler{}) {
-		err := errors.New("handler cant be empty")
-		log.Logger.WithField("handler", handler).Error(err)
-		return nil, err
-	}
 	return &Router{
 		Port:    routerPort,
 		Path:    routerPath,
 		handler: handler,
-	}, nil
+	}
 }
 
 func (rc *Router) Serve() {

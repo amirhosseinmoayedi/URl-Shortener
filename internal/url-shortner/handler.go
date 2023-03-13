@@ -12,13 +12,10 @@ type Handler struct {
 	svc Service
 }
 
-func NewHandler(svc Service) (*Handler, error) {
-	if svc == (Service{}) {
-		return nil, errors.New("service cant be empty struct")
-	}
+func NewHandler(svc Service) *Handler {
 	return &Handler{
 		svc: svc,
-	}, nil
+	}
 }
 
 type urlShortenResponse struct {

@@ -2,7 +2,6 @@ package url_shortner
 
 import (
 	"context"
-	"errors"
 	"github.com/amirhosseinmoayedi/URl-Shortener/internal/log"
 )
 
@@ -10,13 +9,8 @@ type Service struct {
 	URLRepo URLRepository
 }
 
-func NewService(repo URLRepository) (*Service, error) {
-	if repo == nil {
-		err := errors.New("URL repository cant be nil")
-		log.Logger.WithFields(map[string]interface{}{"repo": repo}).Error(err)
-		return nil, err
-	}
-	return &Service{URLRepo: repo}, nil
+func NewService(repo URLRepository) *Service {
+	return &Service{URLRepo: repo}
 }
 
 func (s Service) ShortenLink(ctx context.Context, url *URL) error {

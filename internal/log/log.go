@@ -5,9 +5,13 @@ import (
 	"os"
 )
 
+func init() {
+	initLogger()
+}
+
 var Logger *logrus.Logger
 
-func InitLogger() {
+func initLogger() {
 	level, err := logrus.ParseLevel("debug")
 	if err != nil {
 		logrus.Fatalf("Error in initiating logger")
