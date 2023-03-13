@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"github.com/amirhosseinmoayedi/URl-Shortener/internal/domain/entity"
 	"github.com/amirhosseinmoayedi/URl-Shortener/internal/domain/repository"
 	"github.com/amirhosseinmoayedi/URl-Shortener/internal/log"
@@ -21,11 +22,22 @@ func (s Service) Shortening(ctx context.Context, url *entity.URL) error {
 		log.Logger.WithFields(map[string]interface{}{"ctx": ctx, "url": url}).Error(err)
 		return err
 	}
-	if err := url.SetCreateAt(); err != nil {
+	if err := url.SetPath(); err != nil {
 		log.Logger.WithFields(map[string]interface{}{"ctx": ctx, "url": url}).Error(err)
 		return err
 	}
-	if err := url.SetPath(); err != nil {
+
+	existingURL, err := s.URLRepo.Find(ctx, url.Path)
+	urlNotFound := errors.Is(err, repository.URLNotFound)
+	if err != nil && !urlNotFound {
+		log.Logger.WithFields(map[string]interface{}{"ctx": ctx, "url": url}).Error(err)
+		return err
+	} else if err == nil {
+		url = &existingURL
+		return nil
+	}
+
+	if err := url.SetCreateAt(); err != nil {
 		log.Logger.WithFields(map[string]interface{}{"ctx": ctx, "url": url}).Error(err)
 		return err
 	}
