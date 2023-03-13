@@ -4,7 +4,6 @@ import (
 	"fmt"
 	urlshortner "github.com/amirhosseinmoayedi/URl-Shortener/internal/interface/http/v1"
 	"github.com/amirhosseinmoayedi/URl-Shortener/internal/log"
-	"github.com/go-playground/validator"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -46,8 +45,6 @@ func (rc *Server) Serve() {
 
 func (rc *Server) initiate() *echo.Echo {
 	e := echo.New()
-
-	e.Validator = &requestValidator{validator: validator.New()}
 
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowHeaders:     []string{"Accept", "Authorization", "Content-Type", "x-CSRF-Token"},
