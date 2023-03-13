@@ -1,14 +1,11 @@
 package url_shortner
 
 import (
-	"context"
 	"errors"
-	"fmt"
 	"github.com/amirhosseinmoayedi/URl-Shortener/internal/log"
 	"github.com/labstack/echo/v4"
 	"net/http"
 	"time"
-	"url-shortener/internal/log"
 )
 
 type Handler struct {
@@ -38,23 +35,33 @@ func newURLShortenResponse(url URL) *urlShortenResponse {
 	}
 }
 
+type urlShortenRequest struct {
+	webSiteDomain string `query:"domain" validate:"required"`
+}
+type urlRedirectRequest struct {
+	path string `param:"path" validate:"required"`
+}
+
 func (h Handler) RedirectToOrigin(ctx echo.Context) error {
-	path := ctx.Param("path")
-	if path == "" {
-		err := errors.New("uuid can't be empty")
-		log.Logger.WithField("ctx", ctx).Debug(err)
+	var request urlRedirectRequest
+	if err := ctx.Bind(&request); err != nil {
+		log.Logger.WithFields(map[string]interface{}{"request": *ctx.Request(), "err": err}).Error("can't bind to urlRedirectRequest")
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	if err := ctx.Validate(request); err != nil {
+		log.Logger.WithFields(map[string]interface{}{"request": *ctx.Request(), "err": err}).Error("validation error for urlRedirectRequest")
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	bctx := context.Background()
-	url, err := h.svc.GetShortenLink(bctx, path)
+	bctx := ctx.Request().Context()
+	url, err := h.svc.GetShortenLink(bctx, request.path)
 	if err != nil {
-		if !errors.Is(err, URLNotFound) {
-			log.Logger.WithFields(map[string]interface{}{"ctx": ctx, "url": url}).Debug(err)
+		if errors.Is(err, URLNotFound) {
+			log.Logger.WithFields(map[string]interface{}{"request": *ctx.Request(), "err": err, "url": url}).Error(err)
 			return echo.NewHTTPError(http.StatusNotFound, err.Error())
 		} else {
-			err = fmt.Errorf("can't retrevive the url for uuid %v: %w", path, err)
-			log.Logger.WithFields(map[string]interface{}{"ctx": ctx, "url": url}).Error(err)
+			log.Logger.WithFields(map[string]interface{}{"request": *ctx.Request(), "err": err, "url": url}).Error("can't retrieve the url for uuid")
 			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
 	}
@@ -65,21 +72,26 @@ func (h Handler) RedirectToOrigin(ctx echo.Context) error {
 }
 
 func (h Handler) ShortenUrl(ctx echo.Context) error {
-	givenURL := ctx.QueryParam("givenURL")
-	if givenURL == "" {
-		err := errors.New("givenURL params cant be empty")
-		log.Logger.WithFields(map[string]interface{}{"ctx": ctx, "givenURL": givenURL}).Debug(err)
+	var request urlShortenRequest
+	err := ctx.Bind(&request)
+	if err != nil {
+		log.Logger.WithFields(map[string]interface{}{"request": *ctx.Request(), "err": err}).Error("can't bind the request for shorten url")
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	if err = ctx.Validate(request); err != nil {
+		log.Logger.WithFields(map[string]interface{}{"request": *ctx.Request(), "err": err}).Error("validation error for urlShortenRequest")
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	bctx := context.Background()
-	url := NewUrl(givenURL)
-	if err := h.svc.ShortenLink(bctx, url); err != nil {
-		log.Logger.WithFields(map[string]interface{}{"ctx": ctx, "givenURL": givenURL, "url": url}).Error(err)
+	bctx := ctx.Request().Context()
+	url := NewUrl(request.webSiteDomain)
+	if err = h.svc.ShortenLink(bctx, url); err != nil {
+		log.Logger.WithFields(map[string]interface{}{"request": *ctx.Request(), "err": err, "url": url}).Error("can't create a shorted url")
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	responsePayload := newURLShortenResponse(*url)
-	log.Logger.WithFields(map[string]interface{}{"ctx": ctx, "url": url, "response": responsePayload}).Info("redirected")
+	log.Logger.WithFields(map[string]interface{}{"request": *ctx.Request(), "err": err, "url": url, "response": responsePayload}).Info("response to shorted url request")
 	return ctx.JSONPretty(http.StatusCreated, responsePayload, "\t")
 }

@@ -6,6 +6,7 @@ import (
 	"github.com/amirhosseinmoayedi/URl-Shortener/internal/http/handlers"
 	"github.com/amirhosseinmoayedi/URl-Shortener/internal/log"
 	url_shortner "github.com/amirhosseinmoayedi/URl-Shortener/internal/url-shortner"
+	"github.com/go-playground/validator"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -18,6 +19,17 @@ type Router struct {
 
 var routerPort = ""
 var routerPath = ""
+
+type requestValidator struct {
+	validator *validator.Validate
+}
+
+func (cv *requestValidator) Validate(i interface{}) error {
+	if err := cv.validator.Struct(i); err != nil {
+		return err
+	}
+	return nil
+}
 
 func NewRouter(handler url_shortner.Handler) (*Router, error) {
 	if routerPort == "" {
@@ -52,6 +64,8 @@ func (rc *Router) Serve() {
 
 func (rc *Router) startRouter() *echo.Echo {
 	e := echo.New()
+
+	e.Validator = &requestValidator{validator: validator.New()}
 
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowHeaders:     []string{"Accept", "Authorization", "Content-Type", "x-CSRF-Token"},
