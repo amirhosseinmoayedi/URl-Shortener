@@ -75,7 +75,7 @@ func (rc *Server) initiate() *echo.Echo {
 	e.GET("/health-check/", urlshortner.HeartBeat)
 
 	e.POST("/shorten-url/", rc.handler.ShortenUrl)
-	e.GET("/shorted-url/:uuid", rc.handler.RedirectToOrigin)
+	e.GET("/shorted-url/:path/", rc.handler.RedirectToOrigin)
 
 	return e
 }

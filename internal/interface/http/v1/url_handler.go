@@ -31,7 +31,7 @@ type urlShortenRequest struct {
 	WebSiteDomain string `json:"web_site_domain"`
 }
 type urlRedirectRequest struct {
-	path string `param:"path"`
+	Path string `param:"path"`
 }
 
 func (h Handler) RedirectToOrigin(ctx echo.Context) error {
@@ -41,14 +41,14 @@ func (h Handler) RedirectToOrigin(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	if request.path == "" {
+	if request.Path == "" {
 		err := errors.New("path must not be empty")
 		log.Logger.WithFields(map[string]interface{}{"request_URI": ctx.Request().URL, "err": err}).Error("validation error for urlRedirectRequest")
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
 	bctx := ctx.Request().Context()
-	url, err := h.svc.GetShortened(bctx, request.path)
+	url, err := h.svc.GetShortened(bctx, request.Path)
 	if err != nil {
 		if errors.Is(err, repository.URLNotFound) {
 			log.Logger.WithFields(map[string]interface{}{"request_URI": ctx.Request().RequestURI, "err": err, "url": url}).Error(err)
