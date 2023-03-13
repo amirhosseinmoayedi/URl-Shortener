@@ -1,10 +1,10 @@
 package main
 
 import (
-	"url-shortener/internal/cache"
-	"url-shortener/internal/http"
-	log "url-shortener/internal/log"
-	url_shortner "url-shortener/internal/url-shortner"
+	"github.com/amirhosseinmoayedi/URl-Shortener/internal/cache"
+	"github.com/amirhosseinmoayedi/URl-Shortener/internal/http"
+	log "github.com/amirhosseinmoayedi/URl-Shortener/internal/log"
+	urlshortner "github.com/amirhosseinmoayedi/URl-Shortener/internal/url-shortner"
 )
 
 func init() {

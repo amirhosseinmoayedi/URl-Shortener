@@ -3,7 +3,7 @@ package url_shortner
 import (
 	"context"
 	"errors"
-	"url-shortener/internal/log"
+	"github.com/amirhosseinmoayedi/URl-Shortener/internal/log"
 )
 
 type Service struct {

@@ -3,11 +3,11 @@ package url_shortner
 import (
 	"errors"
 	"fmt"
+	log "github.com/amirhosseinmoayedi/URl-Shortener/internal/log"
 	"hash/fnv"
 	"regexp"
 	"strconv"
 	"time"
-	log "url-shortener/internal/log"
 )
 
 var domainRegex *regexp.Regexp

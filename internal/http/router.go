@@ -3,11 +3,11 @@ package http
 import (
 	"errors"
 	"fmt"
+	"github.com/amirhosseinmoayedi/URl-Shortener/internal/http/handlers"
+	"github.com/amirhosseinmoayedi/URl-Shortener/internal/log"
+	url_shortner "github.com/amirhosseinmoayedi/URl-Shortener/internal/url-shortner"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"url-shortener/internal/http/handlers"
-	"url-shortener/internal/log"
-	url_shortner "url-shortener/internal/url-shortner"
 )
 
 type Router struct {
