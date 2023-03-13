@@ -53,7 +53,6 @@ func (u *URL) setPath() error {
 	h := fnv.New32()
 	_, err := h.Write([]byte(u.Original))
 	if err != nil {
-		log.Logger.WithFields(map[string]interface{}{"hash": h, "url": u.Original}).Warn(err)
 		return err
 	}
 	u.Path = strconv.Itoa(int(h.Sum32()))
